@@ -10,17 +10,29 @@ async function showLeaderboard(){
     const leaderboard_area = document.createElement('div');
     document.getElementById('premium-user-area').appendChild(leaderboard_area);
     leaderboard_area.innerHTML = `
-    <h3>LeaderBoard</h3>
-    <div class="border border-2 rounded">
-    <table class="table" id="leaderboard-table">
-        <thead id="leaderboard-head">
-            <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Expense</th>
-            </tr>
-        </thead>
-        <tbody id="leaderboard-body"></tbody>
-    </table>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <h3>LeaderBoard</h3>
+                    <div class="border border-2 rounded">
+                    <table class="table" id="leaderboard-table">
+                        <thead id="leaderboard-head">
+                            <tr>
+                                <th scope="col">Name</th>
+                                <th scope="col">Expense</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-body"></tbody>
+                    </table>
+                    </div>
+            </div>
+            <div class="col-sm">
+                <div style="display:flex; justify-content:center; align-items:center; width:375px; height:375px;">
+                    <canvas id="leaderboard-chart" width="375" height="375">
+                    </canvas>
+                </div>
+            </div>
+        </div>
     </div>
 `;
  
@@ -38,11 +50,29 @@ async function showLeaderboard(){
         cell1.innerHTML = user.name;
         cell2.innerHTML = user.total_expense_amount!=null?user.total_expense_amount:0;
     });
-
-
-    
+    leaderboardChart(response.data.user_leaderboard);    
 }
-
+function leaderboardChart(leaderboard){
+    var randomColors = Array.from({ length: leaderboard.length }, () =>
+        '#' + Math.floor(Math.random() * 16777215).toString(16)
+    );
+    var data = {
+        labels: leaderboard.map(item => item.name),
+        datasets: [{
+            data: leaderboard.map(item => item.total_expense_amount), // Values representing the size of each slice
+            backgroundColor: randomColors, // Colors for each slice
+            hoverBackgroundColor: randomColors,
+        }]
+    };
+    var ctx = document.getElementById('leaderboard-chart').getContext('2d');
+    
+    var leaderboardChart = new Chart(ctx, {
+        type: 'pie',
+        data: data
+    });
+    ctx.canvas.width = 200;
+    ctx.canvas.height = 200;
+}
 async function getBuyPremium(event) {
     try {
         event.preventDefault();

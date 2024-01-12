@@ -88,7 +88,7 @@ function showAllExpenses(response) {
         })
 
     }
-
+    expenseChart(data)
     document.getElementById('total-expense').textContent = `Total Expense:${response.data.total_expense}`
 }
 
@@ -336,5 +336,36 @@ function itemsPerPageDropdown(selectedValue) {
     getExpenses(currentPage, selectedItemsPerPage);
 }
 
+function expenseChart(expenses) {
+    
+    const category = expenses.reduce((acc, expense)=>{    
+        var category = expense.expense_category
+        acc[category] = (acc[category] || 0) + expense.expense_price;
+        return acc;
+    }, {});
+    
+    let category_names = Object.keys(category);
+    let totalcategoryexpense = Object.values(category)
+
+    var randomColors = Array.from({ length: category_names.length }, () =>
+        '#' + Math.floor(Math.random() * 16777215).toString(16)
+    );
+    var data = {
+        labels:category_names,
+        datasets: [{
+            data: totalcategoryexpense, 
+            backgroundColor: randomColors, 
+            hoverBackgroundColor: randomColors,
+        }]
+    };
+    var ctx = document.getElementById('expense-chart').getContext('2d');
+
+    var expenseChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: data
+    });
+    ctx.canvas.width = 200;
+    ctx.canvas.height = 200;
+}
 
 
